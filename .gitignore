@@ -63,6 +63,7 @@ data/metadata.json
 
 # Ignore JSON files globally, except specific tracked ones below
 *.json
+!data/personal_greenhouse_companies.json
 !data/greenhouse_companies.json
 !data/ashby_companies.json
 !data/bamboohr_companies.json
