@@ -36,6 +36,13 @@ jobs:
       - name: Scrape selected Greenhouse companies
         run: python scripts/scraper.py --source automated
 
+      - name: Inspect scraper output
+        run: |
+          echo "Contents of scripts/output:"
+          ls -lah scripts/output || true
+          test -f scripts/output/all_jobs.json
+          test -f scripts/output/metadata.json
+
       - name: Build small static site
         run: python scripts/build_site.py
 
