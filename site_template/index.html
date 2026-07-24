@@ -8,9 +8,49 @@
 </head>
 <body>
   <main>
-    <h1>Personal U.S. Job Board</h1>
-    <p id="status">Loading jobs…</p>
-    <input id="search" type="search" placeholder="Search title, company, or location">
+    <header>
+      <h1>Personal U.S. Job Board</h1>
+      <p id="status">Loading jobs…</p>
+    </header>
+
+    <section class="controls">
+      <input id="search" type="search" placeholder="Search title, company, or location">
+
+      <div class="control-row">
+        <select id="sortBy">
+          <option value="newest">Sort: newest</option>
+          <option value="company">Sort: company</option>
+          <option value="title">Sort: title</option>
+        </select>
+
+        <select id="levelFilter">
+          <option value="">Level: all</option>
+          <option value="entry">Entry</option>
+          <option value="mid">Mid</option>
+          <option value="senior">Senior</option>
+        </select>
+
+        <select id="atsFilter">
+          <option value="">ATS: all</option>
+        </select>
+
+        <label class="checkbox">
+          <input type="checkbox" id="remoteOnly">
+          Remote only
+        </label>
+
+        <label class="checkbox">
+          <input type="checkbox" id="hideHidden" checked>
+          Hide hidden jobs
+        </label>
+
+        <label class="checkbox">
+          <input type="checkbox" id="hideApplied">
+          Hide applied jobs
+        </label>
+      </div>
+    </section>
+
     <div id="jobs"></div>
   </main>
   <script src="app.js"></script>

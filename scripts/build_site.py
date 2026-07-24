@@ -14,16 +14,9 @@ jobs_path = os.path.join(OUTPUT_DIR, "all_jobs.json")
 metadata_path = os.path.join(OUTPUT_DIR, "metadata.json")
 
 if not os.path.exists(jobs_path):
-    raise FileNotFoundError(
-        f"Scraper output is missing: {jobs_path}. "
-        "Check the earlier scraper step in the Actions log."
-    )
-
+    raise FileNotFoundError(f"Scraper output is missing: {jobs_path}")
 if not os.path.exists(metadata_path):
-    raise FileNotFoundError(
-        f"Scraper metadata is missing: {metadata_path}. "
-        "Check the earlier scraper step in the Actions log."
-    )
+    raise FileNotFoundError(f"Scraper metadata is missing: {metadata_path}")
 
 with open(jobs_path, encoding="utf-8") as file:
     jobs = json.load(file)
@@ -38,6 +31,7 @@ slim_jobs = [
         "location": job.get("location"),
         "url": job.get("url") or job.get("absolute_url"),
         "ats": job.get("ats"),
+        "skill_level": job.get("skill_level", "mid"),
         "updated_at": job.get("updated_at"),
         "remote": job.get("remote", False),
     }
@@ -59,9 +53,10 @@ with open(os.path.join(SITE_DIR, "metadata.json"), "w", encoding="utf-8") as fil
     json.dump(site_metadata, file, ensure_ascii=False, indent=2)
 
 for filename in ("index.html", "styles.css", "app.js"):
-    source = os.path.join(TEMPLATE_DIR, filename)
-    destination = os.path.join(SITE_DIR, filename)
-    shutil.copyfile(source, destination)
+    shutil.copyfile(
+        os.path.join(TEMPLATE_DIR, filename),
+        os.path.join(SITE_DIR, filename),
+    )
 
 size_bytes = sum(
     os.path.getsize(os.path.join(root, name))

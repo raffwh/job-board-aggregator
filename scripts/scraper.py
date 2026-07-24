@@ -8,7 +8,7 @@ from requests.adapters import HTTPAdapter
 
 from personal_config import (
     COMPANY_BLOCKLIST,
-    GREENHOUSE_FILE_NAME,
+    ENABLED_PLATFORMS,
     MAX_PUBLISHED_JOBS,
     TITLE_TERMS,
     US_LOCATION_PATTERNS,
@@ -949,7 +949,6 @@ def save_results(all_companies, active_companies, all_jobs):
     print("=" * 80 + "\n")
 
     original_count = len(all_jobs)
-    # all_jobs = clean_job_data(all_jobs)
     all_jobs = clean_job_data(all_jobs)
     all_jobs = [job for job in all_jobs if keep_personal_job(job)]
     all_jobs.sort(
@@ -1101,7 +1100,7 @@ def main():
     print("Scraping all jobs from ATS companies")
     print("=" * 80)
 
-    # Load existing companies
+    # # Load existing companies
     # greenhouse_companies = load_companies(GREENHOUSE_FILE)
     # ashby_companies = load_companies(ASHBY_FILE)
     # bamboohr_companies = load_companies(BAMBOOHR_FILE)
@@ -1122,16 +1121,25 @@ def main():
     #         return
 
 
-    ## ------------------------------------------------------
-    #___Personal implementation: only the small Greenhouse list.
-    personal_greenhouse_file = os.path.join(ROOT_DIR, "data", GREENHOUSE_FILE_NAME)
-    greenhouse_companies = load_companies(personal_greenhouse_file)
-    if not greenhouse_companies:
-        print("Exiting - no Greenhouse companies loaded!")
-        return
-    ## ------------------------------------------------------
 
-    
+    ####------------------------------------------------------------------       
+    greenhouse_companies =      (load_companies(GREENHOUSE_FILE) if "greenhouse" in ENABLED_PLATFORMS else set())
+    lever_companies =           (load_companies(LEVER_FILE)      if "lever" in ENABLED_PLATFORMS else set())
+    ashby_companies =           (load_companies(ASHBY_FILE)      if "ashby" in ENABLED_PLATFORMS else set())
+    workday_companies =         (load_companies(WORKDAY_FILE)    if "workday" in ENABLED_PLATFORMS else set())
+
+    if (
+            not greenhouse_companies
+            and not ashby_companies
+            # and not bamboohr_companies
+            and not lever_companies
+            and not workday_companies
+            # and not icims_companies
+            # and not paylocity_companies
+        ):
+            print("Exiting - no companies in enabled list loaded!")
+            return
+    ####------------------------------------------------------------------
 
     # # Define all platform jobs
     # platforms = [
@@ -1144,10 +1152,17 @@ def main():
     #     (paylocity_companies, fetch_company_jobs_paylocity, "PAYLOCITY"),
     # ]
 
-    platforms = [
-    (greenhouse_companies, fetch_company_jobs_greenhouse, "GREENHOUSE"),
-        ]
-    
+
+
+    platforms = []
+    if greenhouse_companies:
+        platforms.append((greenhouse_companies, fetch_company_jobs_greenhouse, "GREENHOUSE"))
+    if lever_companies:
+        platforms.append((lever_companies, fetch_company_jobs_lever, "LEVER"))
+    if ashby_companies:
+        platforms.append((ashby_companies, fetch_company_jobs_ashby, "ASHBY"))
+    if workday_companies:
+        platforms.append((workday_companies, fetch_company_jobs_workday, "WORKDAY"))
 
 
 
@@ -1171,18 +1186,17 @@ def main():
             )
 
     # Combine all company sets for total count
-    # all_companies = (
-    #     greenhouse_companies
-    #     | ashby_companies
-    #     | bamboohr_companies
-    #     | lever_companies
-    #     | workday_companies
-    #     | icims_companies
-    #     | paylocity_companies
-    # )
+    all_companies = (
+        greenhouse_companies
+        | ashby_companies
+        # | bamboohr_companies
+        | lever_companies
+        | workday_companies
+        # | icims_companies
+        # | paylocity_companies
+    )
 
 
-    all_companies = greenhouse_companies
 
     save_results(all_companies, all_active_companies, all_jobs)
 

@@ -1,4 +1,12 @@
-GREENHOUSE_FILE_NAME = "personal_greenhouse_companies.json"
+# ============================================================
+# PERSONAL CONFIGURATION
+# Controls scope, filtering, and publishing limits.
+# ============================================================
+
+# Which ATS platforms to scan. Add "ashby" later once measured.
+ENABLED_PLATFORMS = ("greenhouse", "lever", "ashby", "workday")  # "bamboohr", "icims", "paylocity"
+
+
 
 US_LOCATION_PATTERNS = (
     "united states",
@@ -26,7 +34,21 @@ COMPANY_BLOCKLIST = {
 }
 
 
-TITLE_TERMS = () # ("data scientist", "machine learning engineer", "data analyst")
+TITLE_TERMS = ( # ("data scientist", "machine learning engineer", "data analyst")
+    "data scientist",
+    "data science",
+    "machine learning engineer",
+    "ml engineer",
+    "machine learning scientist",
+    "data analyst",
+    "analytics engineer",
+    "decision scientist",
+    "applied scientist",
+    "research scientist",
+    "business intelligence analyst",
+    "quantitative analyst",
+    "data engineer",
 
+)
 
-MAX_PUBLISHED_JOBS = 10_000
+MAX_PUBLISHED_JOBS = 20_000
