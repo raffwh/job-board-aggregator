@@ -34,10 +34,10 @@ slim_jobs = [
         "skill_level": job.get("skill_level", "mid"),
         "updated_at": job.get("updated_at"),
         "remote": job.get("remote", False),
+        "match_type": job.get("match_type", "primary"),
     }
     for job in jobs
 ]
-
 with open(os.path.join(SITE_DIR, "jobs.json"), "w", encoding="utf-8") as file:
     json.dump(slim_jobs, file, ensure_ascii=False, separators=(",", ":"))
 

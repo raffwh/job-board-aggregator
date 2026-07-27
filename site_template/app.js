@@ -9,6 +9,7 @@ const atsElement = document.getElementById("atsFilter");
 const remoteOnlyElement = document.getElementById("remoteOnly");
 const hideHiddenElement = document.getElementById("hideHidden");
 const hideAppliedElement = document.getElementById("hideApplied");
+const showMaybeElement = document.getElementById("showMaybe");
 
 let jobs = [];
 let state = loadState();
@@ -70,6 +71,7 @@ function render() {
 
     if (hideHidden && jobState.hidden) return false;
     if (hideApplied && jobState.applied) return false;
+    if (job.match_type === "maybe" && !showMaybeElement.checked) return false;
     if (level && job.skill_level !== level) return false;
     if (ats && job.ats !== ats) return false;
     if (remoteOnly && !job.remote) return false;
@@ -155,5 +157,5 @@ fetch("jobs.json")
     statusElement.textContent = "Could not load job data.";
   });
 
-[searchElement, sortElement, levelElement, atsElement, remoteOnlyElement, hideHiddenElement, hideAppliedElement]
+[searchElement, sortElement, levelElement, atsElement, remoteOnlyElement, hideHiddenElement, hideAppliedElement, showMaybeElement]
   .forEach((element) => element.addEventListener("input", render));

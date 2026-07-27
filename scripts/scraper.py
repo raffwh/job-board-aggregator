@@ -10,7 +10,8 @@ from personal_config import (
     COMPANY_BLOCKLIST,
     ENABLED_PLATFORMS,
     MAX_PUBLISHED_JOBS,
-    TITLE_TERMS,
+    MAYBE_PATTERNS,
+    TITLE_PATTERNS,
     US_LOCATION_PATTERNS,
     US_STATE_ABBREVIATIONS,
 )
@@ -884,13 +885,14 @@ def is_us_location(location):
     state_match = re.search(r"(?:,|\s)\s*([A-Z]{2})(?:\s|$|,)", location or "")
     return bool(state_match and state_match.group(1) in US_STATE_ABBREVIATIONS)
 
-
 def matches_title(title):
-    """No filtering while TITLE_TERMS is empty."""
-    if not TITLE_TERMS:
+    if not TITLE_PATTERNS:
         return True
-    title_lower = (title or "").lower()
-    return any(term.lower() in title_lower for term in TITLE_TERMS)
+    return any(pattern.search(title or "") for pattern in TITLE_PATTERNS)
+
+
+def matches_maybe_title(title):
+    return any(pattern.search(title or "") for pattern in MAYBE_PATTERNS)
 
 
 def keep_personal_job(job):
@@ -898,13 +900,19 @@ def keep_personal_job(job):
     title = job.get("title") or ""
     location = job.get("location") or ""
 
-    return (
+    base_ok = (
         company not in COMPANY_BLOCKLIST
         and not job.get("is_recruiter", False)
         and is_us_location(location)
-        and matches_title(title)
     )
 
+    if not base_ok:
+        return False, False
+
+    is_primary = matches_title(title)
+    is_maybe = (not is_primary) and matches_maybe_title(title)
+
+    return is_primary, is_maybe
 
 ## ---------------------------------------------------------
 
@@ -949,19 +957,48 @@ def save_results(all_companies, active_companies, all_jobs):
     print("=" * 80 + "\n")
 
     original_count = len(all_jobs)
+    # all_jobs = clean_job_data(all_jobs)
+    # all_jobs = [job for job in all_jobs if keep_personal_job(job)]
+    # all_jobs.sort(
+    #     key=lambda job: (
+    #         (job.get("updated_at") or ""),
+    #         (job.get("company") or "").lower(),
+    #         (job.get("title") or "").lower(),
+    #     ),
+    #     reverse=True,
+    # )
+    # all_jobs = all_jobs[:MAX_PUBLISHED_JOBS]
+    # print(f"Personal U.S. jobs retained: {len(all_jobs):,}")
+
     all_jobs = clean_job_data(all_jobs)
-    all_jobs = [job for job in all_jobs if keep_personal_job(job)]
-    all_jobs.sort(
-        key=lambda job: (
+
+    primary_jobs = []
+    maybe_jobs = []
+    for job in all_jobs:
+        is_primary, is_maybe = keep_personal_job(job)
+        if is_primary:
+            job["match_type"] = "primary"
+            primary_jobs.append(job)
+        elif is_maybe:
+            job["match_type"] = "maybe"
+            maybe_jobs.append(job)
+
+    def sort_key(job):
+        return (
             (job.get("updated_at") or ""),
             (job.get("company") or "").lower(),
             (job.get("title") or "").lower(),
-        ),
-        reverse=True,
-    )
-    all_jobs = all_jobs[:MAX_PUBLISHED_JOBS]
-    print(f"Personal U.S. jobs retained: {len(all_jobs):,}")
+        )
 
+    primary_jobs.sort(key=sort_key, reverse=True)
+    maybe_jobs.sort(key=sort_key, reverse=True)
+
+    primary_jobs = primary_jobs[:MAX_PUBLISHED_JOBS]
+    maybe_jobs = maybe_jobs[: max(0, MAX_PUBLISHED_JOBS // 5)]
+
+    all_jobs = primary_jobs + maybe_jobs
+    print(f"Primary matches: {len(primary_jobs):,}")
+    print(f"Maybe matches: {len(maybe_jobs):,}")
 
 
     cleaned_count = original_count - len(all_jobs)
