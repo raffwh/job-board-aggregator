@@ -210,6 +210,7 @@ def fetch_company_jobs_greenhouse(slug):
                                 d.get("name") for d in job.get("departments", [])
                             ],
                             "id": job.get("id"),
+                            "published_at": job.get("updated_at") or job.get("created_at") or "",
                             "updated_at": job.get("updated_at"),
                             "is_recruiter": is_recruiter_company(slug),
                             "ats": "Greenhouse",
@@ -279,6 +280,7 @@ def fetch_company_jobs_ashby(slug):
                         "company": slug,
                         "company_slug": slug,
                         "title": job.get("title", ""),
+                        "published_at": job.get("updated_at") or job.get("created_at") or "",
                         "location": job.get("locationName", "Not specified")[:50],
                         "url": f"https://jobs.ashbyhq.com/{slug}/{job.get('id')}",
                         "is_recruiter": is_recruiter_company(slug),
@@ -343,6 +345,7 @@ def fetch_company_jobs_bamboohr(slug):
                                 "company_slug": slug,
                                 "title": job.get("jobOpeningName"),
                                 "location": location[:50],
+                                "published_at": job.get("updated_at") or job.get("created_at") or "",
                                 "remote": remote,
                                 "coords": coords,
                                 "url": f"https://{slug}.bamboohr.com/careers/{job.get('id')}",
@@ -394,12 +397,22 @@ def fetch_company_jobs_lever(slug):
                     categories = job.get("categories", {})
                     location = categories.get("location", "Not specified")[:50]
                     remote, coords = enrich_location(location)
+                    published_at = ""
+                    created_at = job.get("createdAt")
+                    if created_at:
+                        published_at = datetime.fromtimestamp(
+                            created_at / 1000,
+                            tz=timezone.utc,
+                        ).isoformat()
+
                     normalized.append(
                         {
                             "company": slug,
                             "company_slug": slug,
                             "title": job.get("text"),
                             "location": location,
+                            "published_at": published_at,
+                            "created_at": created_at,
                             "remote": remote,
                             "coords": coords,
                             "url": job.get("hostedUrl"),
@@ -517,6 +530,7 @@ def fetch_company_jobs_workday(slug):
                         "remote": remote,
                         "coords": coords,
                         "url": f"{base_url}/{site_id}{job_path}",
+                        "published_at": job.get("updated_at") or job.get("created_at") or "",
                         "updated_at": _parse_workday_posted_on(job.get("postedOn")),
                         "is_recruiter": is_recruiter_company(company),
                         "ats": "Workday",
@@ -602,6 +616,7 @@ def fetch_company_jobs_icims(slug):
                     "coords": coords,
                     "url": job_url,
                     "updated_at": updated_at,
+                    "published_at": updated_at,
                     "is_recruiter": is_recruiter_company(slug),
                     "ats": "iCIMS",
                     "skill_level": job_tier_classification(title),
@@ -700,6 +715,7 @@ def fetch_company_jobs_paylocity(slug):
                     "absolute_url": detail,
                     "departments": [dept] if dept else [],
                     "id": job_id,
+                    "published_at": job.get("updated_at") or job.get("created_at") or "",
                     "updated_at": job.get("PublishedDate"),
                     "is_recruiter": is_recruiter_company(company),
                     "ats": "Paylocity",
@@ -898,7 +914,7 @@ def matches_maybe_title(title):
 
 def keep_personal_job(job):
     company = (job.get("company") or job.get("company_slug") or "").lower()
-    
+
     title = job.get("title") or ""
     # Exclude overly senior titles
     if SENIOR_EXCLUDE_PATTERN.search(title):
@@ -1170,15 +1186,21 @@ def main():
     lever_companies =           (load_companies(LEVER_FILE)      if "lever" in ENABLED_PLATFORMS else set())
     ashby_companies =           (load_companies(ASHBY_FILE)      if "ashby" in ENABLED_PLATFORMS else set())
     workday_companies =         (load_companies(WORKDAY_FILE)    if "workday" in ENABLED_PLATFORMS else set())
+    icims_companies =           (load_companies(ICIMS_FILE)      if "icims" in ENABLED_PLATFORMS else set())
+    paylocity_companies =       (load_companies(PAYLOCITY_FILE)  if "paylocity" in ENABLED_PLATFORMS else set())
+    bamboohr_companies =        (load_companies(BAMBOOHR_FILE)   if "bamboohr" in ENABLED_PLATFORMS else set())
+
+
+
 
     if (
             not greenhouse_companies
             and not ashby_companies
-            # and not bamboohr_companies
+            and not bamboohr_companies
             and not lever_companies
             and not workday_companies
-            # and not icims_companies
-            # and not paylocity_companies
+            and not icims_companies
+            and not paylocity_companies
         ):
             print("Exiting - no companies in enabled list loaded!")
             return
@@ -1206,6 +1228,12 @@ def main():
         platforms.append((ashby_companies, fetch_company_jobs_ashby, "ASHBY"))
     if workday_companies:
         platforms.append((workday_companies, fetch_company_jobs_workday, "WORKDAY"))
+    if icims_companies:
+        platforms.append((icims_companies, fetch_company_jobs_icims, "iCIMS"))
+    if paylocity_companies:
+        platforms.append((paylocity_companies, fetch_company_jobs_paylocity, "PAYLOCITY"))
+    if bamboohr_companies:
+        platforms.append((bamboohr_companies, fetch_company_jobs_bamboohr, "BAMBOOHR"))
 
 
 
@@ -1232,11 +1260,11 @@ def main():
     all_companies = (
         greenhouse_companies
         | ashby_companies
-        # | bamboohr_companies
+        | bamboohr_companies
         | lever_companies
         | workday_companies
-        # | icims_companies
-        # | paylocity_companies
+        | icims_companies
+        | paylocity_companies
     )
 
 

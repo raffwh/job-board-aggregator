@@ -32,6 +32,7 @@ slim_jobs = [
         "url": job.get("url") or job.get("absolute_url"),
         "ats": job.get("ats"),
         "skill_level": job.get("skill_level", "mid"),
+        "published_at": job.get("published_at") or job.get("created_at") or "",
         "updated_at": job.get("updated_at"),
         "remote": job.get("remote", False),
         "match_type": job.get("match_type", "primary"),

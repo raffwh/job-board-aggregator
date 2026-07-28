@@ -18,10 +18,10 @@
 
       <div class="control-row">
         <select id="sortBy">
-          <option value="newest">Sort: newest</option>
+          <option value="newest" selected>Sort: newest first</option>
           <option value="company">Sort: company</option>
           <option value="title">Sort: title</option>
-        </select>
+          </select>
 
         <select id="levelFilter">
           <option value="">Level: all</option>
@@ -40,6 +40,11 @@
         </label>
 
         <label class="checkbox">
+          <input type="checkbox" id="nearBoston">
+          Near Boston only
+        </label>
+
+        <label class="checkbox">
           <input type="checkbox" id="hideHidden" checked>
           Hide hidden jobs
         </label>
@@ -47,6 +52,11 @@
         <label class="checkbox">
           <input type="checkbox" id="hideApplied">
           Hide applied jobs
+        </label>
+
+        <label class="checkbox">
+          <input type="checkbox" id="savedOnly">
+          Saved jobs only
         </label>
 
 
