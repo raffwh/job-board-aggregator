@@ -133,16 +133,26 @@ USER_AGENTS = [
 # ============================================================
 
 
-def load_companies(filepath):
-    """Load companies from JSON file."""
-    try:
-        with open(filepath, "r", encoding="utf-8") as f:
-            companies = set(json.load(f))
-        print(f"Loaded {len(companies):,} companies from {filepath}")
+def load_companies(file_path):
+    with open(file_path, "r") as f:
+        data = json.load(f)
+
+    if not data:
+        print(f"Loaded 0 companies from {file_path}")
+        return []
+
+    first = data[0]
+
+    if isinstance(first, str):
+        companies = sorted(set(data))
+        print(f"Loaded {len(companies):,} companies from {file_path}")
         return companies
-    except FileNotFoundError:
-        print(f"File not found: {filepath}")
-        return set()
+
+    if isinstance(first, dict):
+        print(f"Loaded {len(data):,} company records from {file_path}")
+        return data
+
+    raise ValueError(f"Unsupported company format in {file_path}")
 
 
 # ============================================================
@@ -1187,8 +1197,9 @@ def main():
     ashby_companies =           (load_companies(ASHBY_FILE)      if "ashby" in ENABLED_PLATFORMS else set())
     workday_companies =         (load_companies(WORKDAY_FILE)    if "workday" in ENABLED_PLATFORMS else set())
     icims_companies =           (load_companies(ICIMS_FILE)      if "icims" in ENABLED_PLATFORMS else set())
-    paylocity_companies =       (load_companies(PAYLOCITY_FILE)  if "paylocity" in ENABLED_PLATFORMS else set())
     bamboohr_companies =        (load_companies(BAMBOOHR_FILE)   if "bamboohr" in ENABLED_PLATFORMS else set())
+
+    paylocity_companies = (load_paylocity(PAYLOCITY_FILE) if "paylocity" in ENABLED_PLATFORMS else set())
 
 
 

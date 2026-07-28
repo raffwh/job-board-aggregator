@@ -100,4 +100,4 @@ MAYBE_PATTERNS = [
     re.compile(r"\binsights?\s*(analyst|scientist|lead)\b", re.IGNORECASE),
 ]
 
-MAX_PUBLISHED_JOBS = 20_000
+MAX_PUBLISHED_JOBS = 40_000
