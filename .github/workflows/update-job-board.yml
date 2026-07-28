@@ -3,7 +3,7 @@ name: Update personal job board
 on:
   workflow_dispatch:
   schedule:
-    - cron: "45 14 * * *"
+    - cron: "45 11 * * *"
 
 permissions:
   contents: read
@@ -17,7 +17,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 150
 
     steps:
       - name: Check out repository
@@ -61,7 +61,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    timeout-minutes: 150
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
