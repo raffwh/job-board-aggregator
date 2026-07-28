@@ -3,7 +3,7 @@ name: Update personal job board
 on:
   workflow_dispatch:
   schedule:
-    - cron: "45 11 * * *"
+    - cron: "00 10 * * *"
 
 permissions:
   contents: read
