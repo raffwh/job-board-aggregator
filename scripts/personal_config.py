@@ -4,7 +4,7 @@
 # ============================================================
 
 # Which ATS platforms to scan. Add "ashby" later once measured.
-ENABLED_PLATFORMS = ("greenhouse", "lever", "ashby", "workday")  # "bamboohr", "icims", "paylocity"
+ENABLED_PLATFORMS = ("greenhouse", "lever", "ashby", "workday" , "bamboohr", "icims", "paylocity")
 
 
 
@@ -55,6 +55,12 @@ COMPANY_BLOCKLIST = {
 
 import re
 
+# Titles matching these patterns are excluded entirely (too senior).
+SENIOR_EXCLUDE_PATTERN = re.compile(
+    r"\b(principal|director|vp|vice\s*president|head\s*of|chief|staff\s*(data|ml|ai)|distinguished)\b",
+    re.IGNORECASE
+)
+
 # Primary titles: matched anywhere in the title, case-insensitive.
 TITLE_PATTERNS = [
     re.compile(r"data\s*(scientist|analyst|science)", re.IGNORECASE),
@@ -62,7 +68,7 @@ TITLE_PATTERNS = [
     re.compile(r"\bml\s*(engineer|scientist)\b", re.IGNORECASE),
     re.compile(r"analytics\s*engineer", re.IGNORECASE),
     re.compile(r"(applied|research)\s*scientist", re.IGNORECASE),
-    re.compile(r"decision\s*scientist", re.IGNORECASE),
+    
     re.compile(r"business\s*intelligence\s*analyst", re.IGNORECASE),
     re.compile(r"quantitative\s*(analyst|researcher)", re.IGNORECASE),
     re.compile(r"\bdata\s*engineer\b", re.IGNORECASE),
@@ -75,8 +81,10 @@ TITLE_PATTERNS = [
 
     re.compile(r"\bai\s*engineer\b", re.IGNORECASE),
 
+    re.compile(r"decision\s*scientist", re.IGNORECASE),
     re.compile(r"\bdecision\s*scientist\b", re.IGNORECASE),
 ]
+
 
 # Secondary/adjacent titles: shown in a separate "Maybe relevant" bucket,
 # not silently added to the main list. Review these manually and promote

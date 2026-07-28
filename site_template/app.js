@@ -9,6 +9,8 @@ const atsElement = document.getElementById("atsFilter");
 const remoteOnlyElement = document.getElementById("remoteOnly");
 const hideHiddenElement = document.getElementById("hideHidden");
 const hideAppliedElement = document.getElementById("hideApplied");
+const hideSeniorElement = document.getElementById("hideSenior");
+const SENIOR_TITLE_RE = /\b(principal|director|vp|vice\s*president|head\s*of|chief|staff\s*(data|ml|ai)|distinguished)\b/i;
 const showMaybeElement = document.getElementById("showMaybe");
 
 let jobs = [];
@@ -71,6 +73,7 @@ function render() {
 
     if (hideHidden && jobState.hidden) return false;
     if (hideApplied && jobState.applied) return false;
+    if (hideSeniorElement.checked && SENIOR_TITLE_RE.test(job.title)) return false;
     if (job.match_type === "maybe" && !showMaybeElement.checked) return false;
     if (level && job.skill_level !== level) return false;
     if (ats && job.ats !== ats) return false;
@@ -157,5 +160,8 @@ fetch("jobs.json")
     statusElement.textContent = "Could not load job data.";
   });
 
-[searchElement, sortElement, levelElement, atsElement, remoteOnlyElement, hideHiddenElement, hideAppliedElement, showMaybeElement]
+
+  
+
+[searchElement, sortElement, levelElement, atsElement, remoteOnlyElement, hideHiddenElement, hideAppliedElement, showMaybeElement, hideSeniorElement]
   .forEach((element) => element.addEventListener("input", render));

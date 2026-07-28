@@ -14,6 +14,7 @@ from personal_config import (
     TITLE_PATTERNS,
     US_LOCATION_PATTERNS,
     US_STATE_ABBREVIATIONS,
+    SENIOR_EXCLUDE_PATTERN  
 )
 
 # ============================================================
@@ -897,7 +898,12 @@ def matches_maybe_title(title):
 
 def keep_personal_job(job):
     company = (job.get("company") or job.get("company_slug") or "").lower()
+    
     title = job.get("title") or ""
+    # Exclude overly senior titles
+    if SENIOR_EXCLUDE_PATTERN.search(title):
+        return (False, False)
+    
     location = job.get("location") or ""
 
     base_ok = (
