@@ -4,7 +4,15 @@
 # ============================================================
 
 # Which ATS platforms to scan. Add "ashby" later once measured.
-ENABLED_PLATFORMS = ("greenhouse", "lever", "ashby", "workday" , "bamboohr", "icims", "paylocity")
+ENABLED_PLATFORMS = (
+    "greenhouse"
+    , "lever"
+    # , "ashby"
+    , "workday" 
+    # , "bamboohr"
+    , "icims"
+    # , "paylocity"
+    )
 
 
 

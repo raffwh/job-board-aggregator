@@ -641,7 +641,7 @@ def fetch_company_jobs_icims(slug):
         return slug, [], None
 
 
-# TODO - Add Workable
+
 
 
 def _paylocity_location(j):
@@ -735,6 +735,8 @@ def fetch_company_jobs_paylocity(slug):
             )
         return slug, normalized, response.status_code
     return slug, [], None
+
+# TODO - Add Workable
 
 
 def fetch_all_jobs(companies, fetcher, platform="ATS"):
@@ -1268,17 +1270,25 @@ def main():
             )
 
     # Combine all company sets for total count
+    # all_companies = (
+    #     greenhouse_companies
+    #     | ashby_companies
+    #     | bamboohr_companies
+    #     | lever_companies
+    #     | workday_companies
+    #     | icims_companies
+    #     | paylocity_companies
+    # )
+
     all_companies = (
-        greenhouse_companies
-        | ashby_companies
-        | bamboohr_companies
-        | lever_companies
-        | workday_companies
-        | icims_companies
-        | paylocity_companies
-    )
-
-
+            set(greenhouse_companies)
+            | set(ashby_companies)
+            | set(bamboohr_companies)
+            | set(lever_companies)
+            | set(workday_companies)
+            | set(icims_companies)
+            | set(paylocity_companies)
+        )   
 
     save_results(all_companies, all_active_companies, all_jobs)
 
