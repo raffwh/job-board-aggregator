@@ -24,8 +24,11 @@ const BOSTON_AREA = [
   "framingham", "natick", "needham", "dedham", "canton", "braintree",
   "weymouth", "randolph", "milton", "norwood", "walpole",
   "waltham", "woburn", "wilmington", "reading", "wakefield",
-  "stoneham", "melrose", "arlington", "belmont", "weston",
-  "wellesley", "westwood", "norwell", "plymouth",
+  "stoneham", "melrose", 
+  // "arlington", 
+  "belmont", "weston",
+  "wellesley", "westwood", "norwell", 
+  // "plymouth",
   "lowell", "lawrence", "haverhill", "andover", "north andover",
   "billerica", "tewksbury", "chelmsford", "acton", "concord", "bedford",
   "massachusetts", " ma ", ", ma", "ma,", "(ma)"

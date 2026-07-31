@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Scrape selected Greenhouse companies
+      - name: Scrape selected ATS companies
         run: python scripts/scraper.py --source automated
 
       - name: Inspect scraper output
@@ -41,8 +41,14 @@ jobs:
           echo "Contents of scripts/output:"
           ls -lah scripts/output || true
           test -f scripts/output/all_jobs.json
-          test -f scripts/output/metadata.json
-
+          test -f scripts/output/metadata.json 
+          python - <<'PY'
+          import json
+          from collections import Counter
+          with open("scripts/output/all_jobs.json", "r", encoding="utf-8") as f:
+              jobs = json.load(f)
+          print("ATS counts:", Counter(j.get("ats","Unknown") for j in jobs))
+          PY
       - name: Build small static site
         run: python scripts/build_site.py
 

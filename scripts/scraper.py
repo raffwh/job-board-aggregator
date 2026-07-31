@@ -220,7 +220,7 @@ def fetch_company_jobs_greenhouse(slug):
                                 d.get("name") for d in job.get("departments", [])
                             ],
                             "id": job.get("id"),
-                            "published_at": job.get("updated_at") or job.get("created_at") or "",
+                            "published_at": job.get("created_at") or "",
                             "updated_at": job.get("updated_at"),
                             "is_recruiter": is_recruiter_company(slug),
                             "ats": "Greenhouse",
@@ -531,6 +531,7 @@ def fetch_company_jobs_workday(slug):
                 job_path = job.get("externalPath", "")
                 location = (job.get("locationsText") or "Not specified")[:50]
                 remote, coords = enrich_location(location)
+                posted_date = _parse_workday_posted_on(job.get("postedOn"))
                 normalized.append(
                     {
                         "company": company,
@@ -540,8 +541,8 @@ def fetch_company_jobs_workday(slug):
                         "remote": remote,
                         "coords": coords,
                         "url": f"{base_url}/{site_id}{job_path}",
-                        "published_at": job.get("updated_at") or job.get("created_at") or "",
-                        "updated_at": _parse_workday_posted_on(job.get("postedOn")),
+                        "published_at": posted_date or "",
+                        "updated_at": posted_date or "",
                         "is_recruiter": is_recruiter_company(company),
                         "ats": "Workday",
                         "skill_level": job_tier_classification(job.get("title", "")),
@@ -594,11 +595,7 @@ def fetch_company_jobs_icims(slug):
             if loc_el is None:
                 continue
             job_url = loc_el.text.strip() if loc_el.text else ""
-            if (
-                not job_url
-                or "/jobs/" not in job_url
-                or job_url.endswith("/jobs/intro")
-            ):
+            if not job_url or "/jobs/" not in job_url or job_url.endswith("/jobs/intro"):
                 continue
 
             path = job_url.split("/jobs/")[-1]
@@ -615,15 +612,14 @@ def fetch_company_jobs_icims(slug):
                 else None
             )
 
-            remote, coords = False, None
             normalized.append(
                 {
                     "company": slug,
                     "company_slug": slug,
                     "title": title,
-                    "location": "Not specified",
-                    "remote": remote,
-                    "coords": coords,
+                    "location": "United States",
+                    "remote": False,
+                    "coords": None,
                     "url": job_url,
                     "updated_at": updated_at,
                     "published_at": updated_at,
@@ -639,7 +635,6 @@ def fetch_company_jobs_icims(slug):
     except Exception as e:
         print(f"Error fetching iCIMS for {slug}: {e}")
         return slug, [], None
-
 
 
 
@@ -737,6 +732,8 @@ def fetch_company_jobs_paylocity(slug):
     return slug, [], None
 
 # TODO - Add Workable
+# TODO - Add eightfold
+# TODO - Add taleo
 
 
 def fetch_all_jobs(companies, fetcher, platform="ATS"):
@@ -904,15 +901,14 @@ def job_tier_classification(title):
 ## ________  CUSTOM - TEMP  FUNCTIONS
 
 def is_us_location(location):
-    """Keep only explicit U.S. locations or U.S.-remote roles."""
-    text = (location or "").strip().lower()
+    text = (location or "").strip()
+    lower = text.lower()
 
-    if any(pattern in text for pattern in US_LOCATION_PATTERNS):
+    if any(pattern in lower for pattern in US_LOCATION_PATTERNS):
         return True
 
-    # Examples matched: "Boston, MA", "New York, NY", "Austin, TX"
-    state_match = re.search(r"(?:,|\s)\s*([A-Z]{2})(?:\s|$|,)", location or "")
-    return bool(state_match and state_match.group(1) in US_STATE_ABBREVIATIONS)
+    m = re.search(r"(?:,\s*|\b)([A-Z]{2})(?:\b)", text)
+    return bool(m and m.group(1) in US_STATE_ABBREVIATIONS)
 
 def matches_title(title):
     if not TITLE_PATTERNS:
@@ -926,13 +922,15 @@ def matches_maybe_title(title):
 
 def keep_personal_job(job):
     company = (job.get("company") or job.get("company_slug") or "").lower()
-
     title = job.get("title") or ""
-    # Exclude overly senior titles
+    location = job.get("location") or ""
+    skill_level = job.get("skill_level") or job_tier_classification(title)
+
     if SENIOR_EXCLUDE_PATTERN.search(title):
         return (False, False)
-    
-    location = job.get("location") or ""
+
+    if skill_level == "senior":
+        return (False, False)
 
     base_ok = (
         company not in COMPANY_BLOCKLIST
@@ -941,11 +939,10 @@ def keep_personal_job(job):
     )
 
     if not base_ok:
-        return False, False
+        return (False, False)
 
     is_primary = matches_title(title)
     is_maybe = (not is_primary) and matches_maybe_title(title)
-
     return is_primary, is_maybe
 
 ## ---------------------------------------------------------
@@ -984,6 +981,8 @@ def save_dead_slugs(platform, slugs):
 # ============================================================
 # SAVE RESULTS
 # ============================================================
+from collections import Counter
+
 def save_results(all_companies, active_companies, all_jobs):
     """Save all data to JSON files."""
     print("=" * 80)
@@ -1006,8 +1005,23 @@ def save_results(all_companies, active_companies, all_jobs):
 
     all_jobs = clean_job_data(all_jobs)
 
+
+    ###---------------------- 
+    ats_before = Counter(job.get("ats", "Unknown") for job in all_jobs)
+    print(f"ATS before filtering: {dict(ats_before)}")
+    ###---------------------- 
+
     primary_jobs = []
     maybe_jobs = []
+
+
+
+    ###---------------------- 
+    ats_after = Counter(job.get("ats", "Unknown") for job in (primary_jobs + maybe_jobs))
+    print(f"ATS after filtering: {dict(ats_after)}")
+    ###---------------------- 
+
+
     for job in all_jobs:
         is_primary, is_maybe = keep_personal_job(job)
         if is_primary:
