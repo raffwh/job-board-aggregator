@@ -29,62 +29,200 @@ JUNK_SLUGS = {
     "login", "auth", "careers", "jobs", "apply", "dashboard",
 }
 
-
 def ct_log_slugs(domain_suffix):
+    """Optional certificate-transparency discovery.
+
+    crt.sh is frequently unavailable for broad wildcard queries.
+    An outage must not stop the Common Crawl discovery path.
+    """
     url = f"https://crt.sh/?q=%25.{domain_suffix}&output=json"
-    slugs = set()
+
     try:
         resp = requests.get(url, headers=HEADERS, timeout=120)
         resp.raise_for_status()
         entries = resp.json()
     except (requests.RequestException, ValueError) as exc:
-        logging.error("crt.sh failed for %s: %s", domain_suffix, exc)
-        return slugs
+        logging.warning(
+            "crt.sh unavailable for %s; continuing with Common Crawl: %s",
+            domain_suffix,
+            exc,
+        )
+        return set()
+
+    slugs = set()
     for entry in entries:
         for name in str(entry.get("name_value", "")).splitlines():
             name = name.strip().lower()
+
             if name.startswith("*."):
                 name = name[2:]
+
             if not name.endswith("." + domain_suffix):
                 continue
+
             prefix = name[: -len(domain_suffix)].rstrip(".")
+
             if prefix and "." not in prefix:
                 slugs.add(prefix)
+
+    logging.info("crt.sh %s: found %d candidate slugs", domain_suffix, len(slugs))
     return slugs
 
 
-def workable_slugs_from_common_crawl(max_pages=50):
-    info = requests.get("https://index.commoncrawl.org/collinfo.json",
-                        headers=HEADERS, timeout=30)
+
+def workable_slugs_from_common_crawl(max_pages=200):
+    info = requests.get(
+        "https://index.commoncrawl.org/collinfo.json",
+        headers=HEADERS,
+        timeout=30,
+    )
     info.raise_for_status()
     api = info.json()[0]["cdx-api"]
-    base = {"url": "apply.workable.com/*", "output": "json",
-            "filter": "status:200", "collapse": "urlkey"}
-    pages = requests.get(api, params={**base, "showNumPages": "true"},
-                         headers=HEADERS, timeout=60)
+
+    base = {
+        "url": "apply.workable.com/*",
+        "output": "json",
+        "filter": "status:200",
+        "collapse": "urlkey",
+    }
+
+    pages = requests.get(
+        api,
+        params={**base, "showNumPages": "true"},
+        headers=HEADERS,
+        timeout=60,
+    )
     pages.raise_for_status()
     num_pages = min(int(pages.json().get("pages", 1)), max_pages)
+
     logging.info("Common Crawl: scanning %d pages", num_pages)
 
     slugs = set()
-    pattern = re.compile(r"apply\.workable\.com/([a-z0-9][a-z0-9\-]{1,60})/?")
+    pattern = re.compile(
+        r"apply\.workable\.com/([a-z0-9][a-z0-9\-]{1,60})(?:/|$)",
+        re.IGNORECASE,
+    )
+
     for page in range(num_pages):
         try:
-            resp = requests.get(api, params={**base, "page": page},
-                                headers=HEADERS, timeout=120)
+            resp = requests.get(
+                api,
+                params={**base, "page": page},
+                headers=HEADERS,
+                timeout=120,
+            )
             resp.raise_for_status()
         except requests.RequestException as exc:
-            logging.warning("CC page %s failed: %s", page, exc)
+            logging.warning("Common Crawl page %s failed: %s", page, exc)
             continue
+
         for line in resp.text.splitlines():
             try:
                 record = json.loads(line)
             except ValueError:
                 continue
-            m = pattern.match(record.get("url", ""))
+
+            m = pattern.search(record.get("url", ""))
             if m:
-                slugs.add(m.group(1))
+                slugs.add(m.group(1).lower())
+
         time.sleep(1)
+
+    logging.info("Workable: found %d candidate slugs", len(slugs))
+    return slugs
+
+
+def subdomain_slugs_from_common_crawl(domain_suffix, max_pages=200):
+    """
+    Find first-level company subdomains from Common Crawl.
+
+    Example:
+        https://example.recruitee.com/... -> example
+        https://example.breezy.hr/... -> example
+    """
+    info = requests.get(
+        "https://index.commoncrawl.org/collinfo.json",
+        headers=HEADERS,
+        timeout=30,
+    )
+    info.raise_for_status()
+    api = info.json()[0]["cdx-api"]
+
+    base = {
+        "url": domain_suffix,
+        "matchType": "domain",
+        "output": "json",
+        "filter": "status:200",
+        "collapse": "urlkey",
+    }
+
+    pages = requests.get(
+        api,
+        params={**base, "showNumPages": "true"},
+        headers=HEADERS,
+        timeout=60,
+    )
+    pages.raise_for_status()
+
+    page_info = pages.json()
+    num_pages = min(int(page_info.get("pages", 0)), max_pages)
+
+    logging.info(
+        "Common Crawl %s: %s pages available; scanning %d",
+        domain_suffix,
+        page_info.get("pages", 0),
+        num_pages,
+    )
+
+    if num_pages == 0:
+        logging.warning(
+            "Common Crawl %s: index returned zero pages for query %r",
+            domain_suffix,
+            base,
+        )
+        return set()
+
+    slugs = set()
+    pattern = re.compile(
+        rf"https?://([a-z0-9][a-z0-9\-]{{1,60}})\.{re.escape(domain_suffix)}(?:/|$)",
+        re.IGNORECASE,
+    )
+
+    for page in range(num_pages):
+        try:
+            resp = requests.get(
+                api,
+                params={**base, "page": page},
+                headers=HEADERS,
+                timeout=120,
+            )
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            logging.warning(
+                "Common Crawl %s page %s failed: %s",
+                domain_suffix,
+                page,
+                exc,
+            )
+            continue
+
+        for line in resp.text.splitlines():
+            try:
+                record = json.loads(line)
+            except ValueError:
+                continue
+
+            m = pattern.search(record.get("url", ""))
+            if m:
+                slugs.add(m.group(1).lower())
+
+        time.sleep(1)
+
+    logging.info(
+        "Common Crawl %s: found %d candidate slugs",
+        domain_suffix,
+        len(slugs),
+    )
     return slugs
 
 
@@ -167,11 +305,21 @@ def main():
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
     if args.platform in ("recruitee", "all"):
-        write_companies("recruitee", validate_all(
-            ct_log_slugs("recruitee.com"), validate_recruitee, "recruitee"))
+        candidates = subdomain_slugs_from_common_crawl("recruitee.com")
+
+        write_companies(
+            "recruitee",
+            validate_all(candidates, validate_recruitee, "recruitee"),
+        )
+
     if args.platform in ("breezy", "all"):
-        write_companies("breezy", validate_all(
-            ct_log_slugs("breezy.hr"), validate_breezy, "breezy"))
+        candidates = subdomain_slugs_from_common_crawl("breezy.hr")
+
+        write_companies(
+            "breezy",
+            validate_all(candidates, validate_breezy, "breezy"),
+        )
+
     if args.platform in ("workable", "all"):
         write_companies("workable", validate_all(
             workable_slugs_from_common_crawl(), validate_workable, "workable"))
