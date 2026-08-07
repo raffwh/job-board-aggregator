@@ -12,6 +12,9 @@ ENABLED_PLATFORMS = (
     , "bamboohr"
     , "icims"
     # , "paylocity"
+    , "workable"
+    , "recruitee"
+    , "breezy"
     )
 
 
@@ -41,23 +44,6 @@ COMPANY_BLOCKLIST = {
     "lensa"
 }
 
-
-# TITLE_TERMS = ( # ("data scientist", "machine learning engineer", "data analyst")
-#     "data scientist",
-#     "data science",
-#     "machine learning engineer",
-#     "ml engineer",
-#     "machine learning scientist",
-#     "data analyst",
-#     "analytics engineer",
-#     "decision scientist",
-#     "applied scientist",
-#     "research scientist",
-#     "business intelligence analyst",
-#     "quantitative analyst",
-#     "data engineer",
-
-# )
 
 
 

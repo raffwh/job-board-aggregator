@@ -71,6 +71,9 @@ data/metadata.json
 !data/lever_companies.json
 !data/icims_companies.json
 !data/paylocity_companies_clean.json
+!data/workable_companies.json
+!data/recruitee_companies.json
+!data/breezy_companies.json
 !data/locations.json
 !data/salary/salary_lookup.json
 !data/salary/shards/salary_*.json

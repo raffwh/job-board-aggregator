@@ -1,10 +1,11 @@
-import requests, threading, json, random, time, re, os, gzip, argparse, html
+import requests, threading, json, random, time, re, os, gzip, argparse, html, logging
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import unquote
 from geolocation import build_lookup, lookup_location
 from requests.adapters import HTTPAdapter
+from urllib.parse import urljoin
 
 from personal_config import (
     COMPANY_BLOCKLIST,
@@ -30,6 +31,9 @@ WORKDAY_FILE = os.path.join(ROOT_DIR, "data", "workday_companies.json")
 LEVER_FILE = os.path.join(ROOT_DIR, "data", "lever_companies.json")
 ICIMS_FILE = os.path.join(ROOT_DIR, "data", "icims_companies.json")
 PAYLOCITY_FILE = os.path.join(ROOT_DIR, "data", "paylocity_companies_clean.json")
+# WORKABLE_FILE = os.path.join(ROOT_DIR, "data", "workable_companies.json")
+# RECRUITEE_FILE = os.path.join(ROOT_DIR, "data", "recruitee_companies.json")
+# BREEZY_FILE = os.path.join(ROOT_DIR, "data", "breezy_companies.json")
 
 LOCATIONS_FILE = os.path.join(ROOT_DIR, "data", "locations.json")
 
@@ -731,9 +735,141 @@ def fetch_company_jobs_paylocity(slug):
         return slug, normalized, response.status_code
     return slug, [], None
 
-# TODO - Add Workable
-# TODO - Add eightfold
-# TODO - Add taleo
+def fetch_company_jobs_workable(company):
+    """Workable public board. company = {"name": ..., "slug": ...}"""
+    company_name = company["name"]
+    slug = company["slug"]
+    url = f"https://apply.workable.com/api/v1/widget/accounts/{slug}"
+    try:
+        response = requests.get(url, timeout=20)
+        response.raise_for_status()
+        payload = response.json()
+    except (requests.RequestException, ValueError) as exc:
+        logging.warning("Workable fetch failed for %s: %s", company_name, exc)
+        return []
+
+    jobs = payload.get("jobs", [])
+    if not isinstance(jobs, list):
+        return []
+
+    results = []
+    for job in jobs:
+        loc = job.get("location") or {}
+        location = ", ".join(
+            str(p).strip()
+            for p in [loc.get("city"), loc.get("region"), loc.get("country")]
+            if p and str(p).strip()
+        )
+        results.append({
+            "title": str(job.get("title") or "").strip(),
+            "company": company_name,
+            "location": location or "Unknown",
+            "url": job.get("url") or f"https://apply.workable.com/{slug}/",
+            "ats": "workable",
+            "updated_at": job.get("created_at") or job.get("updated_at"),
+            "remote": str(job.get("workplace_type") or "").lower() == "remote",
+            "description": job.get("description", ""),
+        })
+    return results
+
+
+def fetch_company_jobs_recruitee(company):
+    """Recruitee public offers feed. company = {"name": ..., "slug": ...}"""
+    company_name = company["name"]
+    slug = company["slug"]
+    base_url = f"https://{slug}.recruitee.com"
+    url = f"{base_url}/api/offers/"
+    try:
+        response = requests.get(url, timeout=20)
+        response.raise_for_status()
+        payload = response.json()
+    except (requests.RequestException, ValueError) as exc:
+        logging.warning("Recruitee fetch failed for %s: %s", company_name, exc)
+        return []
+
+    offers = payload.get("offers", [])
+    if not isinstance(offers, list):
+        return []
+
+    results = []
+    for offer in offers:
+        loc = offer.get("location")
+        if isinstance(loc, dict):
+            parts = [loc.get("city"), loc.get("state"), loc.get("country")]
+        elif isinstance(loc, str) and loc.strip():
+            parts = [loc.strip()]
+        else:
+            parts = [offer.get("city"), offer.get("state"), offer.get("country")]
+        location = ", ".join(str(p).strip() for p in parts if p and str(p).strip())
+
+        careers_url = offer.get("careers_url") or offer.get("url") or ""
+        job_url = urljoin(f"{base_url}/", careers_url) if careers_url else f"{base_url}/"
+
+        results.append({
+            "title": str(offer.get("title") or "").strip(),
+            "company": company_name,
+            "location": location or "Unknown",
+            "url": job_url,
+            "ats": "recruitee",
+            "updated_at": offer.get("published_at") or offer.get("updated_at"),
+            "remote": bool(offer.get("remote")) or "remote" in location.lower(),
+            "description": offer.get("description", ""),
+        })
+    return results
+
+
+def fetch_company_jobs_breezy(company):
+    """Breezy public board feed. company = {"name": ..., "slug": ...}"""
+    company_name = company["name"]
+    slug = company["slug"]
+    url = f"https://app.breezy.hr/json/{slug}"
+    try:
+        response = requests.get(url, timeout=20)
+        response.raise_for_status()
+        payload = response.json()
+    except (requests.RequestException, ValueError) as exc:
+        logging.warning("Breezy fetch failed for %s: %s", company_name, exc)
+        return []
+
+    if isinstance(payload, dict):
+        positions = payload.get("positions", [])
+    elif isinstance(payload, list):
+        positions = payload
+    else:
+        positions = None
+    if not isinstance(positions, list):
+        return []
+
+    results = []
+    for position in positions:
+        loc = position.get("location") or {}
+        if isinstance(loc, dict):
+            parts = [loc.get("city"), loc.get("state"), loc.get("country")]
+            location = ", ".join(str(p).strip() for p in parts if p and str(p).strip())
+        else:
+            location = str(loc).strip()
+
+        position_url = position.get("url") or position.get("public_url") or ""
+        if position_url and not position_url.startswith("http"):
+            position_url = urljoin("https://app.breezy.hr/", position_url)
+
+        results.append({
+            "title": str(position.get("name") or position.get("title") or "").strip(),
+            "company": company_name,
+            "location": location or "Unknown",
+            "url": position_url or f"https://app.breezy.hr/{slug}",
+            "ats": "breezy",
+            "updated_at": (position.get("updated_date") or position.get("updated_at")
+                           or position.get("created_date")),
+            "remote": bool(position.get("remote") or position.get("is_remote")
+                           or "remote" in location.lower()),
+            "description": position.get("description", ""),
+        })
+    return results
+
+
+# xxx - Add eightfold
+# xxx - Add taleo
 
 
 def fetch_all_jobs(companies, fetcher, platform="ATS"):
@@ -1217,6 +1353,14 @@ def main():
 
     paylocity_companies = (load_paylocity(PAYLOCITY_FILE) if "paylocity" in ENABLED_PLATFORMS else set())
 
+    # workable_companies  =        (load_companies(WORKABLE_FILE)   if "workable" in ENABLED_PLATFORMS else set())
+    # recruitee_companies =        (load_companies(RECRUITEE_FILE)   if "recruitee" in ENABLED_PLATFORMS else set())
+    # breezy_companies =           (load_companies(BREEZY_FILE)   if "breezy" in ENABLED_PLATFORMS else set())
+
+    workable_companies = load_companies(DATA_DIR / "workable_companies.json") if "workable" in ENABLED_PLATFORMS else []
+    recruitee_companies = load_companies(DATA_DIR / "recruitee_companies.json") if "recruitee" in ENABLED_PLATFORMS else []
+    breezy_companies = load_companies(DATA_DIR / "breezy_companies.json") if "breezy" in ENABLED_PLATFORMS else []
+
 
 
 
@@ -1261,6 +1405,14 @@ def main():
         platforms.append((paylocity_companies, fetch_company_jobs_paylocity, "PAYLOCITY"))
     if bamboohr_companies:
         platforms.append((bamboohr_companies, fetch_company_jobs_bamboohr, "BAMBOOHR"))
+    # if workable_companies:
+    #         platforms.append((workable_companies, fetch_company_jobs_workable, "WORKABLE"))
+    # if recruitee_companies:
+    #         platforms.append((recruitee_companies, fetch_company_jobs_recruitee, "RECRUITEE"))
+    # if breezy_companies:
+    #         platforms.append((breezy_companies, fetch_company_jobs_breezy, "BREEZY"))
+
+    
 
 
 
@@ -1283,6 +1435,13 @@ def main():
                 f"\n  >>> {name} COMPLETE: {len(active):,} active, {len(jobs):,} jobs <<<\n"
             )
 
+        for company in workable_companies:
+            futures.append(executor.submit(fetch_company_jobs_workable, company))
+        for company in recruitee_companies:
+            futures.append(executor.submit(fetch_company_jobs_recruitee, company))
+        for company in breezy_companies:
+            futures.append(executor.submit(fetch_company_jobs_breezy, company))
+
     # Combine all company sets for total count
     # all_companies = (
     #     greenhouse_companies
@@ -1302,6 +1461,9 @@ def main():
             | set(workday_companies)
             | set(icims_companies)
             | set(paylocity_companies)
+            | set(workable_companies)
+            | set(recruitee_companies)
+            | set(breezy_companies)
         )   
 
     save_results(all_companies, all_active_companies, all_jobs)
