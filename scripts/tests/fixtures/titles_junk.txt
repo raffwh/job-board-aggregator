@@ -1,0 +1,46 @@
+# Junk titles (Requirement 7.20).
+#
+# Every title here must be classified "excluded". The optional second column
+# pins the expected Exclusion_Reason where the spec names it; a blank second
+# column means the test only asserts the title is excluded.
+#
+# title | expected_exclusion_reason
+#
+#   expected_exclusion_reason : senior_excluded | title_no_match | title_excluded
+#                               (blank = any exclusion)
+
+# --- Requirement 7.20 explicit junk list ---
+Director of Analytics | senior_excluded
+Principal Data Scientist | senior_excluded
+VP Data Science | senior_excluded
+Pharmaberater m/w/d | title_excluded
+Registered Nurse | title_no_match
+Software Engineer Intern | title_excluded
+Security Analyst | title_excluded
+Credit Analyst | title_excluded
+
+# --- Additional seniority exclusions (Requirements 18.3) ---
+Vice President, Data | senior_excluded
+Head of Data Science | senior_excluded
+Chief Data Officer | senior_excluded
+Distinguished Engineer | senior_excluded
+Staff Data Scientist | senior_excluded
+Senior Manager, Analytics | senior_excluded
+Group Manager, Data Science | senior_excluded
+
+# --- Additional title-exclude patterns ---
+Data Science Intern | title_excluded
+Data Analyst Internship | title_excluded
+Software Engineering Co-op | title_excluded
+Threat Analyst | title_excluded
+SOC Analyst | title_excluded
+Loan Analyst | title_excluded
+Underwriting Analyst | title_excluded
+Payroll Analyst | title_excluded
+Service Desk Technician | title_excluded
+
+# --- Unrelated roles with no title match ---
+Registered Dietitian | title_no_match
+Warehouse Associate | title_no_match
+Account Executive | title_no_match
+Graphic Designer | title_no_match

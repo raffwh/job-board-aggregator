@@ -1,0 +1,257 @@
+{
+  "_comment": [
+    "Location classification / filter cases for the offline suite.",
+    "Requirements 9.11, 9.12, 9.13, 9.14, 9.17, 9.18. Coordinates resolve",
+    "through locations_small.json (the same rows as conftest's",
+    "small_location_maps). Each case lists the raw inputs a fetcher would",
+    "provide and the expected Location_Filter / Filter_Chain outcome.",
+    "",
+    "Fields per case:",
+    "  location          raw location string",
+    "  native_workplace  platform-native workplace field or null",
+    "  native_country    platform-native country field or null",
+    "  expected_keep     true if the Location_Filter keeps the job",
+    "  expected_bucket   primary_eligible | maybe | excluded",
+    "  expected_reason   maybe_reason (location_new_england | remote_unspecified",
+    "                    | location_unknown) when bucket == maybe, else null",
+    "  expected_exclusion non_us | outside_radius when bucket == excluded, else null",
+    "  remote_scope      expected Remote_Scope (us | unspecified | null)",
+    "  note              which requirement the case covers"
+  ],
+
+  "cases": [
+    {
+      "name": "boston_onsite",
+      "location": "Boston, MA",
+      "native_workplace": "onsite",
+      "native_country": null,
+      "expected_keep": true,
+      "expected_bucket": "primary_eligible",
+      "expected_reason": null,
+      "expected_exclusion": null,
+      "remote_scope": null,
+      "note": "Req 9.11 - Boston kept primary-eligible"
+    },
+    {
+      "name": "cambridge_ma_onsite",
+      "location": "Cambridge, MA",
+      "native_workplace": "onsite",
+      "native_country": null,
+      "expected_keep": true,
+      "expected_bucket": "primary_eligible",
+      "expected_reason": null,
+      "expected_exclusion": null,
+      "remote_scope": null,
+      "note": "Req 9.11 - ambiguous city name resolved to MA via state code"
+    },
+    {
+      "name": "waltham_ma_hybrid",
+      "location": "Waltham, MA",
+      "native_workplace": "hybrid",
+      "native_country": null,
+      "expected_keep": true,
+      "expected_bucket": "primary_eligible",
+      "expected_reason": null,
+      "expected_exclusion": null,
+      "remote_scope": null,
+      "note": "Req 9.11 - inside radius (~9 mi)"
+    },
+    {
+      "name": "burlington_ma_onsite",
+      "location": "Burlington, MA",
+      "native_workplace": "onsite",
+      "native_country": null,
+      "expected_keep": true,
+      "expected_bucket": "primary_eligible",
+      "expected_reason": null,
+      "expected_exclusion": null,
+      "remote_scope": null,
+      "note": "Req 9.11 - ambiguous city name resolved to MA (not Ontario)"
+    },
+    {
+      "name": "quincy_ma_onsite",
+      "location": "Quincy, MA",
+      "native_workplace": "onsite",
+      "native_country": null,
+      "expected_keep": true,
+      "expected_bucket": "primary_eligible",
+      "expected_reason": null,
+      "expected_exclusion": null,
+      "remote_scope": null,
+      "note": "Req 9.11 - ambiguous city name resolved to MA (not France)"
+    },
+    {
+      "name": "framingham_ma_onsite",
+      "location": "Framingham, MA",
+      "native_workplace": "onsite",
+      "native_country": null,
+      "expected_keep": true,
+      "expected_bucket": "primary_eligible",
+      "expected_reason": null,
+      "expected_exclusion": null,
+      "remote_scope": null,
+      "note": "Req 9.11 - inside radius (~19 mi)"
+    },
+    {
+      "name": "lowell_ma_onsite",
+      "location": "Lowell, MA",
+      "native_workplace": "onsite",
+      "native_country": null,
+      "expected_keep": true,
+      "expected_bucket": "primary_eligible",
+      "expected_reason": null,
+      "expected_exclusion": null,
+      "remote_scope": null,
+      "note": "Req 9.11 - inside radius (~23 mi)"
+    },
+
+    {
+      "name": "remote_us_dash",
+      "location": "Remote - US",
+      "native_workplace": "remote",
+      "native_country": null,
+      "expected_keep": true,
+      "expected_bucket": "primary_eligible",
+      "expected_reason": null,
+      "expected_exclusion": null,
+      "remote_scope": "us",
+      "note": "Req 9.12 - remote US kept primary-eligible, scope us"
+    },
+    {
+      "name": "remote_united_states",
+      "location": "Remote, United States",
+      "native_workplace": "remote",
+      "native_country": null,
+      "expected_keep": true,
+      "expected_bucket": "primary_eligible",
+      "expected_reason": null,
+      "expected_exclusion": null,
+      "remote_scope": "us",
+      "note": "Req 9.12 - remote US kept primary-eligible, scope us"
+    },
+
+    {
+      "name": "san_francisco_onsite",
+      "location": "San Francisco, CA",
+      "native_workplace": "onsite",
+      "native_country": null,
+      "expected_keep": false,
+      "expected_bucket": "excluded",
+      "expected_reason": null,
+      "expected_exclusion": "outside_radius",
+      "remote_scope": null,
+      "note": "Req 9.13 - US but outside radius and outside New England"
+    },
+    {
+      "name": "new_york_onsite",
+      "location": "New York, NY",
+      "native_workplace": "onsite",
+      "native_country": null,
+      "expected_keep": false,
+      "expected_bucket": "excluded",
+      "expected_reason": null,
+      "expected_exclusion": "outside_radius",
+      "remote_scope": null,
+      "note": "Req 9.13 - outside radius"
+    },
+    {
+      "name": "chicago_onsite",
+      "location": "Chicago, IL",
+      "native_workplace": "onsite",
+      "native_country": null,
+      "expected_keep": false,
+      "expected_bucket": "excluded",
+      "expected_reason": null,
+      "expected_exclusion": "outside_radius",
+      "remote_scope": null,
+      "note": "Req 9.13 - outside radius"
+    },
+
+    {
+      "name": "remote_canada",
+      "location": "Remote, Canada",
+      "native_workplace": "remote",
+      "native_country": null,
+      "expected_keep": false,
+      "expected_bucket": "excluded",
+      "expected_reason": null,
+      "expected_exclusion": "non_us",
+      "remote_scope": null,
+      "note": "Req 9.14 - non-US remote excluded"
+    },
+    {
+      "name": "remote_uk",
+      "location": "Remote - UK",
+      "native_workplace": "remote",
+      "native_country": null,
+      "expected_keep": false,
+      "expected_bucket": "excluded",
+      "expected_reason": null,
+      "expected_exclusion": "non_us",
+      "remote_scope": null,
+      "note": "Req 9.14 - non-US remote excluded"
+    },
+    {
+      "name": "remote_emea",
+      "location": "Remote (EMEA)",
+      "native_workplace": "remote",
+      "native_country": null,
+      "expected_keep": false,
+      "expected_bucket": "excluded",
+      "expected_reason": null,
+      "expected_exclusion": "non_us",
+      "remote_scope": null,
+      "note": "Req 9.14 - non-US region excluded"
+    },
+
+    {
+      "name": "worcester_ma_onsite",
+      "location": "Worcester, MA",
+      "native_workplace": "onsite",
+      "native_country": null,
+      "expected_keep": true,
+      "expected_bucket": "maybe",
+      "expected_reason": "location_new_england",
+      "expected_exclusion": null,
+      "remote_scope": null,
+      "note": "Req 9.17 - New England outside radius (~40 mi) -> maybe"
+    },
+    {
+      "name": "providence_ri_onsite",
+      "location": "Providence, RI",
+      "native_workplace": "onsite",
+      "native_country": null,
+      "expected_keep": true,
+      "expected_bucket": "maybe",
+      "expected_reason": "location_new_england",
+      "expected_exclusion": null,
+      "remote_scope": null,
+      "note": "Req 9.17 - New England outside radius (~41 mi) -> maybe"
+    },
+    {
+      "name": "hartford_ct_onsite",
+      "location": "Hartford, CT",
+      "native_workplace": "onsite",
+      "native_country": null,
+      "expected_keep": true,
+      "expected_bucket": "maybe",
+      "expected_reason": "location_new_england",
+      "expected_exclusion": null,
+      "remote_scope": null,
+      "note": "Req 9.17 - New England outside radius -> maybe"
+    },
+
+    {
+      "name": "bare_remote",
+      "location": "Remote",
+      "native_workplace": "remote",
+      "native_country": null,
+      "expected_keep": true,
+      "expected_bucket": "maybe",
+      "expected_reason": "remote_unspecified",
+      "expected_exclusion": null,
+      "remote_scope": "unspecified",
+      "note": "Req 9.18 - bare remote with no country -> maybe remote_unspecified"
+    }
+  ]
+}

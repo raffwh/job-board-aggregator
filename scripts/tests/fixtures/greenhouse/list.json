@@ -1,0 +1,137 @@
+{
+  "jobs": [
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/greenhouse/jobs/8126988?gh_jid=8126988",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": true
+        }
+      ],
+      "internal_job_id": 3519410,
+      "location": {
+        "name": "Eastern Timezone"
+      },
+      "metadata": null,
+      "id": 8126988,
+      "updated_at": "2026-10-27T12:34:27-04:00",
+      "requisition_id": "2026 - P3178",
+      "title": "Commercial Counsel",
+      "company_name": "Greenhouse",
+      "first_published": "2026-08-24T13:52:04-04:00",
+      "language": "en",
+      "application_deadline": null
+    },
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/greenhouse/jobs/8279752?gh_jid=8279752",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": false
+        }
+      ],
+      "internal_job_id": 3581382,
+      "location": {
+        "name": "London, United Kingdom"
+      },
+      "metadata": null,
+      "id": 8279752,
+      "updated_at": "2026-10-14T11:52:46-04:00",
+      "requisition_id": "2026 - Generating6",
+      "title": "Enterprise Account Executive",
+      "company_name": "Greenhouse",
+      "first_published": "2026-10-14T11:52:46-04:00",
+      "language": "en",
+      "application_deadline": null
+    },
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/greenhouse/jobs/8234044?gh_jid=8234044",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": true
+        }
+      ],
+      "internal_job_id": 3562990,
+      "location": {
+        "name": "Anywhere in the United States"
+      },
+      "metadata": null,
+      "id": 8234044,
+      "updated_at": "2026-11-02T13:42:42-05:00",
+      "requisition_id": "2026 - TBD2,  P3131",
+      "title": "Enterprise Sales Development Representative",
+      "company_name": "Greenhouse",
+      "first_published": "2026-09-28T09:18:45-04:00",
+      "language": "en",
+      "application_deadline": null
+    },
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/greenhouse/jobs/8168227?gh_jid=8168227",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": true
+        }
+      ],
+      "internal_job_id": 3534922,
+      "location": {
+        "name": "Anywhere in Ireland"
+      },
+      "metadata": null,
+      "id": 8168227,
+      "updated_at": "2026-10-13T06:53:46-04:00",
+      "requisition_id": "2026 - P3040",
+      "title": "Growth Account Executive",
+      "company_name": "Greenhouse",
+      "first_published": "2026-09-02T04:56:25-04:00",
+      "language": "en",
+      "application_deadline": null
+    },
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/greenhouse/jobs/6180015?gh_jid=6180015",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": true
+        }
+      ],
+      "internal_job_id": 2941984,
+      "location": {
+        "name": "Anywhere in the United States"
+      },
+      "metadata": null,
+      "id": 6180015,
+      "updated_at": "2026-10-30T15:54:05-04:00",
+      "requisition_id": "2024 - P2194, 2354, P2903, P2902, P2947, P1607, P2951, P2838, 1197, P2952, P2188, P2202, 1197, P3012, P2843",
+      "title": "Mid-Market Sales Development Representative",
+      "company_name": "Greenhouse",
+      "first_published": "2024-08-26T23:15:34-04:00",
+      "language": "en",
+      "application_deadline": null
+    }
+  ],
+  "meta": {
+    "total": 20
+  }
+}

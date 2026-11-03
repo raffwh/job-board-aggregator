@@ -14,14 +14,22 @@
     </header>
 
     <section class="controls">
-      <input id="search" type="search" placeholder="Search title, company, or location">
+      <input id="search" type="search" placeholder="Search title, company, location, or skills">
 
       <div class="control-row">
         <select id="sortBy">
-          <option value="newest" selected>Sort: newest first</option>
+          <option value="priority" selected>Sort: Data Scientist first, then newest</option>
+          <option value="newest">Sort: newest first</option>
           <option value="company">Sort: company</option>
           <option value="title">Sort: title</option>
-          </select>
+        </select>
+
+        <select id="categoryFilter">
+          <option value="" selected>All categories</option>
+          <option value="data_scientist">Data Scientist</option>
+          <option value="life_sciences_research">Life-Sciences Research / Market Research</option>
+          <option value="other_target">Other Targets</option>
+        </select>
 
         <select id="levelFilter">
           <option value="">Level: all</option>
@@ -33,6 +41,24 @@
         <select id="atsFilter">
           <option value="">ATS: all</option>
         </select>
+
+        <select id="freshness">
+          <option value="" selected>Any time</option>
+          <option value="3">Last 3 days</option>
+          <option value="7">Last 7 days</option>
+          <option value="14">Last 14 days</option>
+        </select>
+      </div>
+
+      <div class="control-row">
+        <input id="skillFilter" type="search" placeholder="Filter by skill (comma = all must match)">
+      </div>
+
+      <div class="control-row">
+        <label class="checkbox">
+          <input type="checkbox" id="dsOnly">
+          Data Scientist only
+        </label>
 
         <label class="checkbox">
           <input type="checkbox" id="remoteOnly">
@@ -59,8 +85,6 @@
           Saved jobs only
         </label>
 
-
-        
         <label class="checkbox">
           <input type="checkbox" id="hideSenior">
           Hide senior/director titles
@@ -70,12 +94,8 @@
           <input type="checkbox" id="showMaybe">
           Show "maybe relevant" titles
         </label>
-
-        
       </div>
     </section>
-
-
 
     <div id="jobs"></div>
   </main>

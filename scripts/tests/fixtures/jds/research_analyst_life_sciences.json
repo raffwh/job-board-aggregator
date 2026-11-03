@@ -1,0 +1,19 @@
+{
+  "_note": "Life-sciences Research_Title (Research Data Analyst). Requirement 19.2: signal present in the description, so Category is life_sciences_research and the job is kept. Pairs with market_research_non_life_sciences.json to show the gate both ways.",
+  "title": "Research Data Analyst",
+  "description": "An academic medical center is hiring a Research Data Analyst to support clinical research studies. You will manage EHR-derived datasets, run descriptive and inferential analyses in R and SAS, and prepare data for IRB submissions. Prior work with clinical trial data and epidemiology is strongly preferred.",
+  "expected_category": "life_sciences_research",
+  "expected_match": "kept",
+  "expected_exclusion_reason": null,
+  "expected_life_sciences_signal": true,
+  "expected_skills": [
+    "EHR/EMR",
+    "R",
+    "SAS",
+    "Epidemiology"
+  ],
+  "must_not_match": [
+    "Epic/Clarity",
+    "MarketScan"
+  ]
+}

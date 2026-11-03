@@ -1,0 +1,17 @@
+{
+  "_note": "Market Research Analyst with a life-sciences description. Requirement 19.12: the life-sciences signal passes, so Category is life_sciences_research and the job is kept.",
+  "title": "Market Research Analyst",
+  "description": "A pharmaceutical company seeks a Market Research Analyst to support its oncology franchise. You will analyze patient and prescriber data, track therapeutic launches, and brief commercial teams on biotech market trends. Familiarity with the drug development lifecycle and payer dynamics is a plus. You will work in Excel and Tableau.",
+  "expected_category": "life_sciences_research",
+  "expected_match": "kept",
+  "expected_exclusion_reason": null,
+  "expected_life_sciences_signal": true,
+  "expected_skills": [
+    "Excel",
+    "Tableau"
+  ],
+  "must_not_match": [
+    "Epic/Clarity",
+    "SAS"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "result": [
+    {
+      "id": 101,
+      "jobOpeningName": "Data Analyst",
+      "atsLocation": {
+        "city": "Boston",
+        "state": "MA",
+        "country": "United States"
+      },
+      "isRemote": false,
+      "locationType": "0",
+      "datePosted": "2024-05-20"
+    },
+    {
+      "id": 102,
+      "jobOpeningName": "Clinical Data Manager",
+      "atsLocation": {
+        "city": "",
+        "state": "",
+        "country": "United States"
+      },
+      "isRemote": true,
+      "locationType": "1",
+      "datePosted": "2024-05-21"
+    },
+    {
+      "id": 103,
+      "jobOpeningName": "Biostatistician",
+      "atsLocation": {
+        "city": "Cambridge",
+        "state": "MA",
+        "country": "United States"
+      },
+      "isRemote": false,
+      "locationType": "2",
+      "datePosted": "2024-05-22"
+    }
+  ]
+}

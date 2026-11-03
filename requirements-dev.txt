@@ -1,0 +1,4 @@
+# Test-only dependencies (Requirement 16.6). Not needed for the scraper runtime.
+pytest>=8
+hypothesis>=6
+pyyaml

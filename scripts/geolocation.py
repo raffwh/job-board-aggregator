@@ -545,11 +545,15 @@ def build_lookup(locations_path):
         "city_country": {},
         "city_admin": {},
         "city": {},
+        # city -> list of distinct (admin, coords) for country "US".
+        # admin is the raw GeoNames admin1 code (two-letter US state code).
+        "city_us": {},
     }
 
     for row in data:
         city_n = normalize(row[CITY])
-        admin_n = normalize(row[ADMIN])  # normalized lowercase
+        admin_raw = row[ADMIN]  # raw admin1 code (two-letter state code for US)
+        admin_n = normalize(admin_raw)  # normalized lowercase
         country = row[COUNTRY]
         coords = [row[LAT], row[LNG]]
 
@@ -569,6 +573,13 @@ def build_lookup(locations_path):
             maps["city_admin"].setdefault(key, coords)
 
         maps["city"].setdefault(city_n, coords)
+
+        if country == "US":
+            entries = maps["city_us"].setdefault(city_n, [])
+            entry = (admin_raw, coords)
+            # Keep distinct (admin, coords) pairs for this city.
+            if entry not in entries:
+                entries.append(entry)
 
     return maps
 
@@ -620,3 +631,122 @@ def lookup_location(location_str, maps):
         return {"remote": False, "coords": coords}
 
     return {"remote": False, "coords": None}
+
+
+# ---- Detailed lookup (admin-aware, city-only aware) ----
+
+
+def lookup_location_detailed(location_str, maps):
+    """Resolve a location string with admin1 (state) codes and ambiguity.
+
+    Returns a dict: {"city", "admin", "country", "coords", "ambiguous"}.
+
+    - Remote strings are not short-circuited; their parsed country (if any) is
+      still returned so callers can decide the remote scope (Requirement 8.3).
+    - For a city-only string (no admin, no country, not in FAMOUS_CITY_DEFAULTS):
+        * exactly one US entry  -> resolve to that entry (Requirement 8.5)
+        * more than one US entry -> ambiguous=True, coords=None (Requirement 8.6)
+        * zero US entries        -> existing global city fallback behavior
+    - For a resolved US place, ``admin`` carries the GeoNames admin1 code, which
+      is the two-letter US state code (Requirement 8.11).
+    """
+    parsed = parse_job_location(location_str)
+
+    city = parsed["city"]
+    admin = parsed["admin"].lower() if parsed["admin"] else None
+    country = parsed["country"]
+
+    # Remote strings are not short-circuited: parse_job_location returns early
+    # for remote text without a country, so recover the country here so the
+    # caller can decide the remote scope (Requirement 8.3).
+    if country is None:
+        normalized = normalize(location_str)
+        if normalized and normalized not in GARBAGE_LOCATIONS:
+            tokens = [
+                t.strip()
+                for t in normalized.replace("-", ",").split(",")
+                if t.strip()
+            ]
+            for t in tokens:
+                if t in COUNTRY_ALIASES:
+                    country = COUNTRY_ALIASES[t]
+                    break
+
+    result = {
+        "city": city,
+        "admin": None,
+        "country": country,
+        "coords": None,
+        "ambiguous": False,
+    }
+
+    if not city:
+        return result
+
+    # Map NYC boroughs to New York City (only when admin explicitly NY).
+    if city in NYC_BOROUGHS and admin == "ny":
+        city = "new york city"
+        result["city"] = city
+
+    def _resolve_admin_for(coords):
+        """Best-effort admin1 code for resolved coords (US gets state code)."""
+        if country == "US" or (country is None and admin is None):
+            for entry_admin, entry_coords in maps.get("city_us", {}).get(city, []):
+                if entry_coords == coords:
+                    return entry_admin
+        return parsed["admin"]
+
+    # City-only case: no admin, no country, not a famous default.
+    if admin is None and country is None and city not in FAMOUS_CITY_DEFAULTS:
+        us_entries = maps.get("city_us", {}).get(city, [])
+        if len(us_entries) == 1:
+            entry_admin, coords = us_entries[0]
+            result["admin"] = entry_admin
+            result["country"] = "US"
+            result["coords"] = coords
+            return result
+        if len(us_entries) > 1:
+            result["ambiguous"] = True
+            result["coords"] = None
+            return result
+        # Zero US entries: fall through to the existing global city fallback.
+
+    if city and admin and country:
+        coords = maps["city_admin_country"].get(f"{city}|{admin}|{country}")
+        if coords:
+            result["coords"] = coords
+            result["admin"] = _resolve_admin_for(coords)
+            return result
+
+    if city and country:
+        coords = maps["city_country"].get(f"{city}|{country}")
+        if coords:
+            result["coords"] = coords
+            result["admin"] = _resolve_admin_for(coords)
+            return result
+
+    if city and admin:
+        coords = maps["city_admin"].get(f"{city}|{admin}")
+        if coords:
+            result["coords"] = coords
+            result["admin"] = _resolve_admin_for(coords)
+            return result
+
+    # Famous-city default before the city-only fallback.
+    if city in FAMOUS_CITY_DEFAULTS and not country:
+        default_country = FAMOUS_CITY_DEFAULTS[city]
+        coords = maps["city_country"].get(f"{city}|{default_country}")
+        if coords:
+            result["coords"] = coords
+            result["country"] = default_country
+            if default_country == "US":
+                result["admin"] = _resolve_admin_for(coords)
+            return result
+
+    coords = maps["city"].get(city)
+    if coords:
+        result["coords"] = coords
+        result["admin"] = _resolve_admin_for(coords)
+        return result
+
+    return result

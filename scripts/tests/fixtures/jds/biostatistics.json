@@ -1,0 +1,25 @@
+{
+  "_note": "Biostatistics JD. Exercises SAS (uppercase-only), GEE (uppercase/context), Kaplan-Meier, Cox Regression, and survival methods (Requirements 11.4, 11.9).",
+  "title": "Biostatistician II",
+  "description": "The Biostatistician will design and analyze clinical trials and observational studies. You will program statistical analyses in SAS and R, fit generalized estimating equations (GEE) for correlated outcomes, and produce Kaplan-Meier survival curves and Cox proportional hazards models. The role also involves mixed-effects models for longitudinal data and CDISC SDTM and ADaM dataset preparation. Strong foundation in regression and survival analysis required.",
+  "expected_skills": [
+    "SAS",
+    "R",
+    "GEE",
+    "Kaplan-Meier",
+    "Cox Regression",
+    "Survival Analysis",
+    "Mixed-Effects Models",
+    "Regression",
+    "Statistics",
+    "CDISC",
+    "SDTM",
+    "ADaM"
+  ],
+  "must_not_match": [
+    "Epic/Clarity",
+    "MarketScan",
+    "Python",
+    "Go"
+  ]
+}

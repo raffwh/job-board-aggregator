@@ -1,0 +1,18 @@
+{
+  "_note": "Market Research Analyst with a NON-life-sciences description. Requirement 19.12: the life-sciences signal fails on both title and description, so the Filter_Chain excludes the job with Exclusion_Reason non_target_industry.",
+  "title": "Market Research Analyst",
+  "description": "A consumer packaged goods brand seeks a Market Research Analyst to study shopper behavior for its snack and beverage lines. You will run surveys, analyze retail scanner data, and present insights to the marketing team. Experience with consumer segmentation and advertising effectiveness is valued. You will work in Excel and Power BI.",
+  "expected_category": null,
+  "expected_match": "excluded",
+  "expected_exclusion_reason": "non_target_industry",
+  "expected_life_sciences_signal": false,
+  "expected_skills": [
+    "Excel",
+    "Power BI"
+  ],
+  "must_not_match": [
+    "Epic/Clarity",
+    "SAS",
+    "MarketScan"
+  ]
+}

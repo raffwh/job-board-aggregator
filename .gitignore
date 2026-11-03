@@ -75,6 +75,9 @@ data/metadata.json
 !data/salary/salary_lookup.json
 !data/salary/shards/salary_*.json
 
+# Keep offline test fixtures tracked despite the global *.json ignore (Requirement 16.4)
+!scripts/tests/fixtures/**/*.json
+
 # Keep trend history tracked on main (append-only, valuable, deltas cheaply)
 !data/trends/
 !data/trends/daily.jsonl

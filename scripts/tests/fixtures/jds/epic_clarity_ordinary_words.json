@@ -1,0 +1,16 @@
+{
+  "_note": "Uses 'epic' and 'clarity' as ordinary English words, never as the Epic EHR / Clarity database. Confirms the Keyword_Backend does NOT emit Epic/Clarity here (Requirement 11.4). Lowercase 'r' and bare 'c' as prose words must also not match.",
+  "title": "Data Analyst",
+  "description": "This is an epic opportunity to bring clarity to our data. We value clear communication and a knack for turning messy spreadsheets into clean, understandable reports. You will work in Excel and build dashboards in Tableau, and present results with great clarity to business stakeholders. The ideal candidate writes SQL and has an epic attention to detail.",
+  "expected_skills": [
+    "Excel",
+    "Tableau",
+    "SQL"
+  ],
+  "must_not_match": [
+    "Epic/Clarity",
+    "R",
+    "C++",
+    "C#"
+  ]
+}

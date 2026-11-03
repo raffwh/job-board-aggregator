@@ -95,3 +95,75 @@ select {
 
 .job-actions button.active-save { background: #dbeafe; border-color: #2563eb; }
 .job-actions button.active-apply { background: #dcfce7; border-color: #16a34a; }
+
+#skillFilter {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #b9c2d0;
+  border-radius: 8px;
+}
+
+.control-row + .control-row { margin-top: 10px; }
+
+/* Category sections */
+.category-section {
+  margin: 18px 0;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
+  color: #172033;
+  background: #eef1f6;
+  border: 1px solid #dce1ea;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.category-header .toggle {
+  display: inline-block;
+  width: 1em;
+  color: #526075;
+}
+
+.category-header .count {
+  font-weight: 400;
+  color: #526075;
+}
+
+.category-body {
+  margin-top: 8px;
+}
+
+.category-section.collapsed .category-body { display: none; }
+
+/* Badges */
+.badge.ds { background: #ede9fe; color: #5b21b6; }
+.badge.new { background: #dcfce7; color: #166534; }
+.badge.reason { background: #fef3c7; color: #92400e; }
+
+/* Skills and summary */
+.skills { margin-top: 6px; }
+.skill {
+  display: inline-block;
+  font-size: 12px;
+  padding: 2px 8px;
+  margin: 2px 4px 2px 0;
+  border-radius: 999px;
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.summary {
+  margin-top: 6px;
+  color: #33415c;
+  font-size: 14px;
+}
+
+.dates { color: #526075; font-size: 13px; margin-top: 4px; }

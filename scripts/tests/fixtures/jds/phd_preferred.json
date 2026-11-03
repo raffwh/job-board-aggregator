@@ -1,0 +1,17 @@
+{
+  "_note": "PhD-preferred JD (Requirement 20.7, 20.4). requires_phd() must return false (soft phrasing vetoes), so the job is kept. Covers both 'PhD preferred' and 'Master's or PhD' phrasings near the PhD mention.",
+  "title": "Data Scientist",
+  "description": "Join our data science team to build predictive models over healthcare data. A Master's degree is required; a PhD is preferred but not necessary. We also welcome candidates with a Master's or PhD in a quantitative field. You will work in Python and SQL and deploy models to AWS.",
+  "expected_phd_required": false,
+  "expected_match": "kept",
+  "expected_exclusion_reason": null,
+  "expected_skills": [
+    "Python",
+    "SQL",
+    "AWS"
+  ],
+  "must_not_match": [
+    "Epic/Clarity",
+    "SAS"
+  ]
+}

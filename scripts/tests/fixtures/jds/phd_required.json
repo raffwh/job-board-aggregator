@@ -1,0 +1,19 @@
+{
+  "_note": "PhD-required JD (Requirement 20.7). requires_phd() must return true and the Filter_Chain must exclude with Exclusion_Reason phd_required. Required phrasing present, no softening phrasing near the PhD mention.",
+  "title": "Research Scientist, Machine Learning",
+  "description": "We are hiring a Research Scientist to advance our machine learning platform. A PhD in Computer Science, Statistics, or a related field is required. You will develop novel deep learning models in PyTorch and publish your work. Strong Python programming skills are essential.",
+  "expected_phd_required": true,
+  "expected_match": "excluded",
+  "expected_exclusion_reason": "phd_required",
+  "expected_skills": [
+    "Machine Learning",
+    "Deep Learning",
+    "PyTorch",
+    "Python",
+    "Statistics"
+  ],
+  "must_not_match": [
+    "Epic/Clarity",
+    "SAS"
+  ]
+}

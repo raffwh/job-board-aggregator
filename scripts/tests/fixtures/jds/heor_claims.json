@@ -1,0 +1,25 @@
+{
+  "_note": "HEOR / claims JD. Exercises healthcare-coding and claims skills (Requirement 11.9, 11.10). Canonical skill names must match the Skills_Dictionary in design Component 7.",
+  "title": "HEOR Analyst",
+  "description": "We are seeking a Health Economics and Outcomes Research (HEOR) Analyst to join our real-world evidence team. You will analyze administrative claims data, including MarketScan, to study treatment patterns and costs. Responsibilities include building analytic cohorts from ICD-10 diagnosis codes, CPT procedure codes, NDC drug codes, and DRG groupings. You will use SQL to extract data and Python with pandas for analysis, and summarize findings for payer and provider stakeholders. Experience with OMOP common data model is a plus.",
+  "expected_skills": [
+    "HEOR",
+    "Claims Data",
+    "MarketScan",
+    "ICD-10",
+    "CPT",
+    "NDC",
+    "DRG",
+    "SQL",
+    "Python",
+    "pandas",
+    "OMOP",
+    "RWE/RWD"
+  ],
+  "must_not_match": [
+    "Epic/Clarity",
+    "SAS",
+    "R",
+    "Cox Regression"
+  ]
+}

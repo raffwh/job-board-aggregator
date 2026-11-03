@@ -1,0 +1,17 @@
+{
+  "result": {
+    "jobOpening": {
+      "id": 101,
+      "jobOpeningName": "Data Analyst",
+      "description": "<p>Analyze operational data with SQL and build Tableau dashboards. A bachelor's or master's degree is required.</p>",
+      "datePosted": "2024-05-20",
+      "atsLocation": {
+        "city": "Boston",
+        "state": "MA",
+        "country": "United States"
+      },
+      "isRemote": false,
+      "locationType": "0"
+    }
+  }
+}

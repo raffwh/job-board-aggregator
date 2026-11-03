@@ -1,0 +1,75 @@
+# Wanted titles (Requirements 7.19, 18.8, 18.9, 18.10).
+#
+# Every wanted title must be classified primary or maybe (never excluded).
+# Columns are pipe-separated: title | expected_match | expected_reason | expected_priority
+#
+#   expected_match    : primary | maybe   (blank = "primary or maybe", any kept)
+#   expected_reason   : title_primary | title_maybe | tier_senior_signal |
+#                       title_generic_analyst   (blank = unspecified)
+#   expected_priority : 1 (Data_Scientist_Title) | 2 (other kept) | blank = unspecified
+#
+# Where a column is left blank the test only asserts the title is kept (not excluded).
+# Rows with explicit columns pin the senior and priority cases from Requirements 18.8-18.10.
+#
+# title | expected_match | expected_reason | expected_priority
+
+# --- Requirement 7.19 explicit wanted list ---
+Data Analyst III | | | 2
+Analytics Engineer | | | 2
+RWE Data Scientist | | | 1
+Healthcare Data Analyst | | | 2
+BI Analyst | | | 2
+Machine Learning Engineer II | | | 2
+Analytics Manager | maybe | | 2
+Senior Data Analyst | maybe | tier_senior_signal | 2
+Senior Data Scientist | maybe | tier_senior_signal | 1
+Biostatistician II | | | 2
+HEOR Analyst | | | 2
+Epidemiologist | | | 2
+Statistical Programmer | | | 2
+Market Research Analyst, Pharma | | | 2
+Associate Data Scientist | | | 1
+Real World Evidence Scientist | | | 1
+
+# --- Requirement 18.8: Title_Priority 1 (Data_Scientist_Titles) ---
+Decision Scientist | | | 1
+Applied Scientist, Machine Learning | | | 1
+
+# --- Requirement 18.9: Title_Priority 2 (kept, not Data_Scientist_Titles) ---
+Data Analyst | | | 2
+
+# --- Additional CV-family wanted titles (Requirement 18.1) ---
+Data Scientist | primary | title_primary | 1
+Clinical Data Scientist | | | 1
+Health Data Analyst | | | 2
+Clinical Data Analyst | | | 2
+Real World Data Analyst | | | 2
+Health Economics Analyst | | | 2
+Outcomes Research Scientist | | | 2
+Pharmacoepidemiologist | | | 2
+Biostatistician | | | 2
+Statistician | | | 2
+SAS Programmer | | | 2
+Research Data Analyst | | | 2
+Business Intelligence Developer | | | 2
+Commercial Analytics Analyst | | | 2
+Insights Analyst | | | 2
+Data Engineer | | | 2
+Machine Learning Scientist | | | 2
+ML Engineer | | | 2
+AI Engineer | | | 2
+Research Scientist, Machine Learning | | | 1
+Quantitative Analyst | | | 2
+Quantitative Researcher | | | 2
+
+# --- Adjacent "maybe" families (Requirement 18.2) ---
+Clinical Research Coordinator | maybe | title_maybe | 2
+Clinical Research Associate | maybe | title_maybe | 2
+Clinical Data Manager | maybe | title_maybe | 2
+Data Manager | maybe | title_maybe | 2
+Product Analyst | maybe | title_maybe | 2
+Operations Research Analyst | maybe | title_maybe | 2
+Data Strategist | maybe | title_maybe | 2
+
+# --- Generic analyst goes to maybe (Requirement 7.9) ---
+Operations Analyst | maybe | title_generic_analyst | 2
