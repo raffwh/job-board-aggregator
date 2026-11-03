@@ -4,10 +4,6 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "00 10 * * *"
-  push:
-    branches:
-      - main
-  pull_request:
 
 permissions:
   contents: read
@@ -21,7 +17,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: 240
 
     steps:
       - name: Check out repository
@@ -106,7 +102,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: 240
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
