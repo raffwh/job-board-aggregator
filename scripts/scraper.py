@@ -1225,6 +1225,9 @@ def _fetch_paylocity(slug, ctx):
 # TODO - Add taleo
 
 
+_TITLE_DROPPED = ("senior_excluded", "title_excluded", "no_match")
+
+
 def fetch_all_jobs(companies, fetch_fn, platform="ATS", ctx=None):
     """Fetch jobs from all companies in parallel.
 
@@ -1300,6 +1303,7 @@ def fetch_all_jobs(companies, fetch_fn, platform="ATS", ctx=None):
     budget_seconds = _platform_time_budget_seconds(ctx)
     start = time.monotonic()
     budget_hit = False
+    title_matcher = filters.build_title_matcher()
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {
@@ -1335,6 +1339,12 @@ def fetch_all_jobs(companies, fetch_fn, platform="ATS", ctx=None):
             ctx.diag.record_outcome(outcome)
 
             if jobs:
+                # Ashby and Lever return a full description for every job.
+                # Jobs whose title is excluded are dropped later, so free the
+                # text now to keep memory flat over a long run.
+                for job in jobs:
+                    if title_matcher.classify(job.get("title") or "") in _TITLE_DROPPED:
+                        job.pop("description", None)
                 all_jobs.extend(jobs)
                 active_companies[slug] = len(jobs)
                 print(f"  [{i}/{len(live_companies)}] {slug}: {len(jobs)} jobs")
@@ -2025,6 +2035,11 @@ def main(platforms_filter=None, max_companies=None, slugs=None):
     scoped = bool(platforms_filter or max_companies is not None or slugs)
     platforms_filter = {p.lower() for p in platforms_filter} if platforms_filter else None
     slugs = frozenset(slugs) if slugs else None
+
+    # Build the 29 MB location lookup once, before any worker threads start.
+    # lru_cache does not lock, so many threads hitting it first would each
+    # build their own copy and could exhaust runner memory.
+    get_location_maps()
 
     print("\n" + "=" * 80)
     print("JOB BOARD AGGREGATOR")
